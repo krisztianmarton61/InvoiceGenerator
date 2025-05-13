@@ -22,7 +22,7 @@ A modern web application for managing clients and generating invoices. Built wit
 
 1. Clone the repository:
 ```bash
-git clone ...
+git clone https://github.com/krisztianmarton61/InvoiceGenerator.git
 ```
 
 2. Navigate to the project directory:
