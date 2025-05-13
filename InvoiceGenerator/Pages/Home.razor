@@ -1,0 +1,203 @@
+﻿@page "/"
+@using InvoiceGenerator.Services
+@using InvoiceGenerator.Shared.DTOs
+@inject IStatisticsService StatisticsService
+
+<PageTitle>Invoice Generator - Home</PageTitle>
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5 fw-semibold mb-3">Welcome to Invoice Generator</h1>
+            <p class="lead text-muted">Streamline your invoicing process with our professional invoice management system.</p>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="stat-icon bg-primary-subtle">
+                            <i class="bi bi-receipt"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="card-subtitle text-muted mb-1">Total Invoices</h6>
+                            <h3 class="card-title mb-0">@(_invoiceStats?.TotalInvoices ?? 0)</h3>
+                        </div>
+                    </div>
+                    <a href="invoices" class="btn btn-link p-0">View all invoices →</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="stat-icon bg-success-subtle">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="card-subtitle text-muted mb-1">Total Clients</h6>
+                            <h3 class="card-title mb-0">@(_clientStats?.TotalClients ?? 0)</h3>
+                        </div>
+                    </div>
+                    <a href="clients" class="btn btn-link p-0">View all clients →</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="stat-icon bg-warning-subtle">
+                            <i class="bi bi-currency-dollar"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="card-subtitle text-muted mb-1">Total Revenue</h6>
+                            <h3 class="card-title mb-0">$@((_invoiceStats?.TotalRevenue ?? 0).ToString("N2"))</h3>
+                        </div>
+                    </div>
+                    <a href="invoices" class="btn btn-link p-0">View revenue details →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Quick Actions</h5>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <a href="invoices" class="btn btn-outline-primary w-100 py-3">
+                                <i class="bi bi-plus-circle me-2"></i>Create New Invoice
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="clients" class="btn btn-outline-primary w-100 py-3">
+                                <i class="bi bi-person-plus me-2"></i>Add New Client
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-outline-secondary w-100 py-3" disabled>
+                                <i class="bi bi-file-pdf me-2"></i>Export to PDF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Coming Soon Features</h5>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="coming-soon-feature">
+                                <div class="feature-icon">
+                                    <i class="bi bi-file-pdf"></i>
+                                </div>
+                                <div class="feature-content">
+                                    <h6>PDF Export</h6>
+                                    <p class="text-muted mb-0">Export your invoices as professional PDF documents with customizable templates.</p>
+                                    <span class="badge bg-primary-subtle text-primary mt-2">Coming Soon</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="coming-soon-feature">
+                                <div class="feature-icon">
+                                    <i class="bi bi-graph-up"></i>
+                                </div>
+                                <div class="feature-content">
+                                    <h6>Analytics Dashboard</h6>
+                                    <p class="text-muted mb-0">Track your business performance with detailed analytics and reports.</p>
+                                    <span class="badge bg-primary-subtle text-primary mt-2">Coming Soon</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .stat-icon i {
+        font-size: 24px;
+    }
+
+    .bg-primary-subtle {
+        background-color: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+    }
+
+    .bg-success-subtle {
+        background-color: rgba(34, 197, 94, 0.1);
+        color: #22c55e;
+    }
+
+    .bg-warning-subtle {
+        background-color: rgba(234, 179, 8, 0.1);
+        color: #eab308;
+    }
+
+    .coming-soon-feature {
+        display: flex;
+        gap: 1rem;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        background-color: #f8fafc;
+    }
+
+    .feature-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background-color: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .feature-icon i {
+        font-size: 20px;
+    }
+
+    .feature-content {
+        flex: 1;
+    }
+
+    .badge {
+        font-weight: 500;
+        padding: 0.35em 0.65em;
+    }
+</style>
+
+@code {
+    private ClientStatisticsDto _clientStats;
+    private InvoiceStatisticsDto _invoiceStats;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _clientStats = await StatisticsService.GetClientStatisticsAsync();
+        _invoiceStats = await StatisticsService.GetInvoiceStatisticsAsync();
+    }
+}

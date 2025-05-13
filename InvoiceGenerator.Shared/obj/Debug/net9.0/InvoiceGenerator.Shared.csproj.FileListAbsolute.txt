@@ -1,0 +1,11 @@
+C:\Users\Marton Krisztian\InvoiceGenerator\InvoiceGenerator.Shared\bin\Debug\net9.0\InvoiceGenerator.Shared.deps.json
+C:\Users\Marton Krisztian\InvoiceGenerator\InvoiceGenerator.Shared\bin\Debug\net9.0\InvoiceGenerator.Shared.dll
+C:\Users\Marton Krisztian\InvoiceGenerator\InvoiceGenerator.Shared\bin\Debug\net9.0\InvoiceGenerator.Shared.pdb
+C:\Users\Marton Krisztian\InvoiceGenerator\InvoiceGenerator.Shared\obj\Debug\net9.0\InvoiceGenerator.Shared.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Marton Krisztian\InvoiceGenerator\InvoiceGenerator.Shared\obj\Debug\net9.0\InvoiceGenerator.Shared.AssemblyInfoInputs.cache
+C:\Users\Marton Krisztian\InvoiceGenerator\InvoiceGenerator.Shared\obj\Debug\net9.0\InvoiceGenerator.Shared.AssemblyInfo.cs
+C:\Users\Marton Krisztian\InvoiceGenerator\InvoiceGenerator.Shared\obj\Debug\net9.0\InvoiceGenerator.Shared.csproj.CoreCompileInputs.cache
+C:\Users\Marton Krisztian\InvoiceGenerator\InvoiceGenerator.Shared\obj\Debug\net9.0\InvoiceGenerator.Shared.dll
+C:\Users\Marton Krisztian\InvoiceGenerator\InvoiceGenerator.Shared\obj\Debug\net9.0\refint\InvoiceGenerator.Shared.dll
+C:\Users\Marton Krisztian\InvoiceGenerator\InvoiceGenerator.Shared\obj\Debug\net9.0\InvoiceGenerator.Shared.pdb
+C:\Users\Marton Krisztian\InvoiceGenerator\InvoiceGenerator.Shared\obj\Debug\net9.0\ref\InvoiceGenerator.Shared.dll

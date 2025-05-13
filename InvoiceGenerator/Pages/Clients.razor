@@ -1,0 +1,109 @@
+@page "/clients"
+@using InvoiceGenerator.Services
+@using InvoiceGenerator.Shared.DTOs
+@using BlazorWasmApp.Components
+@inject IClientService ClientService
+
+<PageTitle>Clients</PageTitle>
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Clients</h2>
+        </div>
+        <div class="col text-end">
+            <button class="btn btn-primary" @onclick="() => ShowAddClientModal = true">
+                <i class="bi bi-plus-circle"></i> Add New Client
+            </button>
+        </div>
+    </div>
+
+    @if (ClientList == null)
+    {
+        <div class="text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (!ClientList.Any())
+    {
+        <div class="alert alert-info">
+            No clients found. Click the "Add New Client" button to add your first client.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Address</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var client in ClientList)
+                    {
+                        <tr>
+                            <td>@client.Name</td>
+                            <td>@client.Email</td>
+                            <td>@client.Address</td>
+                            <td>
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-outline-primary" @onclick="() => EditClient(client)" title="Edit">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteClient(client)" title="Delete">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<ClientForm @bind-IsVisible="ShowAddClientModal"
+            Client="SelectedClient"
+            OnClientSaved="LoadClients" />
+
+@code {
+    private IEnumerable<ClientDto> ClientList { get; set; }
+    private bool ShowAddClientModal { get; set; }
+    private ClientDto SelectedClient { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadClients();
+    }
+
+    private async Task LoadClients()
+    {
+        ClientList = await ClientService.GetAllClientsAsync();
+    }
+
+    private void EditClient(ClientDto client)
+    {
+        SelectedClient = new ClientDto
+        {
+            Id = client.Id,
+            Name = client.Name,
+            Email = client.Email,
+            Address = client.Address
+        };
+        ShowAddClientModal = true;
+    }
+
+    private async Task DeleteClient(ClientDto client)
+    {
+        // TODO: Add confirmation dialog
+        await ClientService.DeleteClientAsync(client.Id);
+        await LoadClients();
+    }
+} 

@@ -1,0 +1,101 @@
+@using InvoiceGenerator.Shared.DTOs
+@using InvoiceGenerator.Services
+@inject IClientService ClientService
+
+@if (IsVisible)
+{
+    <div class="modal fade show" style="display: block;" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@(Client?.Id == 0 ? "Add New Client" : "Edit Client")</h5>
+                    <button type="button" class="btn-close" @onclick="OnCancel"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="@Client" OnValidSubmit="HandleValidSubmit">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <InputText id="name" class="form-control" @bind-Value="Client.Name" />
+                            <ValidationMessage For="@(() => Client.Name)" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <InputText id="email" class="form-control" @bind-Value="Client.Email" />
+                            <ValidationMessage For="@(() => Client.Email)" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Address</label>
+                            <InputTextArea id="address" class="form-control" @bind-Value="Client.Address" />
+                            <ValidationMessage For="@(() => Client.Address)" />
+                        </div>
+
+                        <div class="text-end">
+                            <button type="button" class="btn btn-secondary me-2" @onclick="OnCancel">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show" style="background-color: rgba(0,0,0,0.5);"></div>
+}
+
+@code {
+    [Parameter]
+    public bool IsVisible { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsVisibleChanged { get; set; }
+
+    [Parameter]
+    public ClientDto Client { get; set; } = new();
+
+    [Parameter]
+    public EventCallback OnClientSaved { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (IsVisible && Client == null)
+        {
+            Client = new ClientDto();
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (Client.Id == 0)
+        {
+            await ClientService.CreateClientAsync(Client);
+        }
+        else
+        {
+            await ClientService.UpdateClientAsync(Client);
+        }
+
+        await OnClientSaved.InvokeAsync();
+        await CloseModal();
+    }
+
+    private async Task OnCancel()
+    {
+        await CloseModal();
+    }
+
+    private async Task CloseModal()
+    {
+        ResetClient();
+        IsVisible = false;
+        await IsVisibleChanged.InvokeAsync(false);
+    }
+
+    private void ResetClient()
+    {
+        Client = new(); 
+    }
+}

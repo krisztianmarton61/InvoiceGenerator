@@ -1,0 +1,212 @@
+@page "/invoices"
+@using InvoiceGenerator.Services
+@using InvoiceGenerator.Shared.Models
+@using InvoiceGenerator.Shared.DTOs
+@using BlazorWasmApp.Components
+@inject IInvoiceService InvoiceService
+
+<PageTitle>Invoices</PageTitle>
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Invoices</h2>
+        </div>
+        <div class="col text-end">
+            <button class="btn btn-primary" @onclick="() => ShowCreateInvoiceModal = true">
+                <i class="bi bi-plus-circle"></i> Create New Invoice
+            </button>
+        </div>
+    </div>
+
+    @if (InvoiceList == null)
+    {
+        <div class="text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (!InvoiceList.Any())
+    {
+        <div class="alert alert-info">
+            No invoices found. Click the "Create New Invoice" button to create your first invoice.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Invoice #</th>
+                        <th>Client</th>
+                        <th>Issue Date</th>
+                        <th>Due Date</th>
+                        <th>Subtotal</th>
+                        <th>Tax</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Notes</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var invoice in InvoiceList)
+                    {
+                        <tr>
+                            <td>@invoice.InvoiceNumber</td>
+                            <td>@invoice.Client?.Name</td>
+                            <td>@invoice.IssueDate.ToShortDateString()</td>
+                            <td>@invoice.DueDate.ToShortDateString()</td>
+                            <td>@invoice.Subtotal.ToString("C")</td>
+                            <td>@invoice.Tax.ToString("C")</td>
+                            <td>@invoice.TotalAmount.ToString("C")</td>
+                            <td>
+                                <span class="badge @GetStatusBadgeClass(invoice.Status)">
+                                    @invoice.Status
+                                </span>
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(invoice.Notes))
+                                {
+                                    <span class="text-truncate d-inline-block" style="max-width: 150px;" title="@invoice.Notes">
+                                        @invoice.Notes
+                                    </span>
+                                }
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-outline-primary" @onclick="() => OpenEditInvoiceModal(invoice)" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-info" @onclick="() => OpenItemsModal(invoice)" title="View Items">
+                                        <i class="bi bi-list-ul"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => OpenDeleteConfirmation(invoice)" title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<InvoiceForm IsVisible="ShowCreateInvoiceModal"
+            OnCancel="@(() => ShowCreateInvoiceModal = false)"
+            OnSave="HandleInvoiceCreated" />
+
+<EditInvoiceForm IsVisible="ShowEditInvoiceModal"
+                Invoice="@SelectedInvoice"
+                OnCancel="@(() => ShowEditInvoiceModal = false)"
+                OnSave="HandleInvoiceUpdated" />
+
+<InvoiceItemsModal IsVisible="ShowItemsModal"
+                  InvoiceId="@SelectedInvoiceId"
+                  OnCancel="@(() => ShowItemsModal = false)"
+                  OnSave="HandleItemsUpdated" />
+
+<ConfirmationDialog IsVisible="ShowDeleteConfirmation"
+                   Title="Delete Invoice"
+                   Message="Are you sure you want to delete this invoice? This action cannot be undone."
+                   OnConfirm="ConfirmDelete"
+                   OnCancel="@(() => ShowDeleteConfirmation = false)" />
+
+@code {
+    private IEnumerable<InvoiceDto> InvoiceList = new List<InvoiceDto>();
+    private bool isLoading = true;
+    private string? error;
+    private bool ShowCreateInvoiceModal { get; set; }
+    private bool ShowEditInvoiceModal { get; set; }
+    private bool ShowItemsModal { get; set; }
+    private InvoiceDto? SelectedInvoice { get; set; }
+    private bool ShowDeleteConfirmation { get; set; }
+    private InvoiceDto? InvoiceToDelete { get; set; }
+
+    private int SelectedInvoiceId => SelectedInvoice?.Id ?? 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadInvoices();
+    }
+
+    private async Task LoadInvoices()
+    {
+        try
+        {
+            isLoading = true;
+            InvoiceList = await InvoiceService.GetAllInvoicesAsync();
+        }
+        catch (Exception ex)
+        {
+            error = "Failed to load invoices. Please try again later.";
+            Console.WriteLine($"Error loading invoices: {ex}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleInvoiceCreated(Invoice invoice)
+    {
+        ShowCreateInvoiceModal = false;
+        await LoadInvoices();
+    }
+
+    private async Task HandleInvoiceUpdated(InvoiceDto invoice)
+    {
+        ShowEditInvoiceModal = false;
+        await LoadInvoices();
+    }
+
+    private void OpenEditInvoiceModal(InvoiceDto invoice)
+    {
+        SelectedInvoice = invoice;
+        ShowEditInvoiceModal = true;
+    }
+
+    private void OpenItemsModal(InvoiceDto invoice)
+    {
+        SelectedInvoice = invoice;
+        ShowItemsModal = true;
+    }
+
+    private async Task HandleItemsUpdated(List<InvoiceItemDto> items)
+    {
+        ShowItemsModal = false;
+        await LoadInvoices();
+    }
+
+    private string GetStatusBadgeClass(string status)
+    {
+        return status.ToLower() switch
+        {
+            "paid" => "bg-success",
+            "pending" => "bg-warning",
+            "overdue" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+
+    private void OpenDeleteConfirmation(InvoiceDto invoice)
+    {
+        InvoiceToDelete = invoice;
+        ShowDeleteConfirmation = true;
+    }
+
+    private async Task ConfirmDelete()
+    {
+        if (InvoiceToDelete != null)
+        {
+            await InvoiceService.DeleteInvoiceAsync(InvoiceToDelete.Id);
+            ShowDeleteConfirmation = false;
+            InvoiceToDelete = null;
+            await LoadInvoices();
+        }
+    }
+} 
